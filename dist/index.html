@@ -19,6 +19,9 @@ button.primary{background:var(--yellow);border-color:var(--indigo)}
 @keyframes king-push{0%,12%,75%,100%{transform:none}25%,65%{transform:translateX(var(--push))}}
 @keyframes king-fall{0%,23%,80%,100%{transform:none}40%,70%{transform:rotate(var(--fall))}}
 @media(prefers-reduced-motion:reduce){.chess-king{animation:none}.chess-loser{transform:rotate(var(--fall))}}
+.basket-shot{position:relative;display:inline-block;width:2.2em;height:1.35em;margin-inline:.25em;vertical-align:middle}.basket-shot.reverse{transform:scaleX(-1)}.basket-hoop{position:absolute;right:.1em;top:.66em;width:.73em;height:.49em;border:2px solid currentColor;border-top:3px solid #e85313;border-radius:0 0 40% 40%}.basket-ball{position:absolute;top:.03em;left:.05em;width:.44em;height:.44em;background:#ff8a28;border:1px solid #743407;border-radius:50%;animation:basket-shot 4s infinite}
+@keyframes basket-shot{0%,12%{transform:none;opacity:1}27%{transform:translate(.88em,-.22em);opacity:1}42%{transform:translate(1.48em,.49em);opacity:1}55%{transform:translate(1.48em,1.08em);opacity:0}56%,100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.basket-ball{animation:none;transform:translate(1.48em,.49em)}}
 .winner{background:var(--yellow);color:var(--navy);border-radius:6px;font-weight:800;padding-inline:4px}.winner small{color:inherit;font-size:.67em}.board-row .tie{color:#8ceaff}.score.tie{background:#d5f5ff}
 .discipline+.discipline{margin-top:24px}
 .discipline h3{margin:0 0 10px;padding:8px 12px;border-left:4px solid var(--cyan);background:#e4f7fd}
@@ -110,6 +113,11 @@ function chessAnimation(result){
  const direction=result[1]>result[0]?' reverse':'';
  return '<span class="chess-scene'+direction+'" aria-hidden="true"><span class="chess-king chess-victor">♚</span><span class="chess-king chess-loser">♚</span></span>';
 }
+function basketAnimation(m,result){
+ if(m.sport!=='Básquetbol mixto'||!result||isTie(result))return '';
+ const direction=result[1]>result[0]?' reverse':'';
+ return '<span class="basket-shot'+direction+'" aria-hidden="true"><span class="basket-hoop"></span><span class="basket-ball"></span></span>';
+}
 function outcome(m,result){
  if(!result)return '';
  if(isTie(result))return chess(m)?'Tablas':'Empate';
@@ -130,7 +138,7 @@ function matchCard(m){
   const result=scores[m.id];
   const card=document.createElement('article');
   card.className='card';
-  card.innerHTML='<div class="meta"><strong>'+m.sport+'</strong><time>'+m.time+'</time></div><div class="teams">'+teamLabel(m.teams[0],result,0)+'<span class="score'+(isTie(result)?' tie':'')+'">'+(result?(chess(m)?(isTie(result)?'Tablas':chessAnimation(result)):result.map(Number).join(' – ')+(isTie(result)?' · Empate':'')):'vs.')+'</span>'+teamLabel(m.teams[1],result,1)+'</div><div class="foot"><small>'+m.venue+' · '+m.turn+'</small><button type="button">'+(result?'Editar':'Cargar')+'</button></div>';
+  card.innerHTML='<div class="meta"><strong>'+m.sport+'</strong><time>'+m.time+'</time></div><div class="teams">'+teamLabel(m.teams[0],result,0)+'<span class="score'+(isTie(result)?' tie':'')+'">'+(result?(chess(m)?(isTie(result)?'Tablas':chessAnimation(result)):result.map(Number).join(' – ')+(isTie(result)?' · Empate':'')):'vs.')+basketAnimation(m,result)+'</span>'+teamLabel(m.teams[1],result,1)+'</div><div class="foot"><small>'+m.venue+' · '+m.turn+'</small><button type="button">'+(result?'Editar':'Cargar')+'</button></div>';
   card.querySelector('button').onclick=()=>open(m);
   return card;
 }
@@ -204,7 +212,7 @@ function renderBoard(){
    const row=document.createElement('div');
    row.className='board-row';
    const result=scores[m.id];
-   row.innerHTML='<time>'+m.time+'</time>'+teamLabel(m.teams[0],result,0)+'<strong'+(isTie(result)?' class="tie" title="Empate"':'')+'>'+(result?(chess(m)?(isTie(result)?'Tablas':chessAnimation(result)):result.join('–')):'—')+'</strong>'+teamLabel(m.teams[1],result,1);
+   row.innerHTML='<time>'+m.time+'</time>'+teamLabel(m.teams[0],result,0)+'<strong'+(isTie(result)?' class="tie" title="Empate"':'')+'>'+(result?(chess(m)?(isTie(result)?'Tablas':chessAnimation(result)):result.join('–')):'—')+basketAnimation(m,result)+'</strong>'+teamLabel(m.teams[1],result,1);
    section.append(row);
   }
   return section;
