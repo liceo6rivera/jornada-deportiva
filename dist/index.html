@@ -19,9 +19,12 @@ button.primary{background:var(--yellow);border-color:var(--indigo)}
 @keyframes king-push{0%,12%,75%,100%{transform:none}25%,65%{transform:translateX(var(--push))}}
 @keyframes king-fall{0%,23%,80%,100%{transform:none}40%,70%{transform:rotate(var(--fall))}}
 @media(prefers-reduced-motion:reduce){.chess-king{animation:none}.chess-loser{transform:rotate(var(--fall))}}
-.basket-shot{position:relative;display:inline-block;width:2.2em;height:1.35em;margin-inline:.25em;vertical-align:middle}.basket-shot.reverse{transform:scaleX(-1)}.basket-hoop{position:absolute;right:.1em;top:.66em;width:.73em;height:.49em;border:2px solid currentColor;border-top:3px solid #e85313;border-radius:0 0 40% 40%}.basket-ball{position:absolute;top:.03em;left:.05em;width:.44em;height:.44em;background:#ff8a28;border:1px solid #743407;border-radius:50%;animation:basket-shot 4s infinite}
-@keyframes basket-shot{0%,12%{transform:none;opacity:1}27%{transform:translate(.88em,-.22em);opacity:1}42%{transform:translate(1.48em,.49em);opacity:1}55%{transform:translate(1.48em,1.08em);opacity:0}56%,100%{opacity:0}}
-@media(prefers-reduced-motion:reduce){.basket-ball{animation:none;transform:translate(1.48em,.49em)}}
+.basket-shot{display:inline-block;width:2.8em;height:1.55em;margin-inline:.18em;vertical-align:middle}.basket-shot.reverse{transform:scaleX(-1)}.basket-ball{animation:basket-flight 5s infinite}.basket-player{animation:basket-cheer 5s infinite}.basket-arms{animation:basket-release 5s step-end infinite}.basket-raised{animation:basket-arms-up 5s step-end infinite}
+@keyframes basket-flight{0%,14%{transform:none;opacity:1}27%{transform:translate(16px,-9px);opacity:1}42%{transform:translate(35px,0);opacity:1}51%{transform:translate(35px,10px);opacity:1}58%,100%{transform:translate(35px,14px);opacity:0}}
+@keyframes basket-cheer{0%,54%,67%,82%,100%{transform:none}61%,74%{transform:translateY(-3px)}}
+@keyframes basket-release{0%,88%,100%{opacity:1}14%{opacity:0}}
+@keyframes basket-arms-up{0%,88%,100%{opacity:0}14%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.basket-shot *{animation:none}.basket-ball{transform:translate(35px,0)}.basket-arms{opacity:0}}
 .celebration{display:inline-block;width:2.65em;height:1.45em;margin-inline:.2em;vertical-align:middle;overflow:visible}.celebration.reverse{transform:scaleX(-1)}.celebration-winner{animation:celebrate-goal 4s infinite}.celebration .standing{color:currentColor}
 @keyframes celebrate-goal{0%,45%,60%,100%{transform:none}12%,32%{transform:translateY(-4px)}22%{transform:translateY(-1px)}}
 @media(prefers-reduced-motion:reduce){.celebration-winner{animation:none}}
@@ -126,7 +129,7 @@ function chessAnimation(result){
 function basketAnimation(m,result){
  if(m.sport!=='Básquetbol mixto'||!result||isTie(result))return '';
  const direction=result[1]>result[0]?' reverse':'';
- return '<span class="basket-shot'+direction+'" aria-hidden="true"><span class="basket-hoop"></span><span class="basket-ball"></span></span>';
+ return '<svg class="basket-shot'+direction+'" viewBox="0 0 64 35" aria-hidden="true"><path d="M58 11v12m-16-5h16m-14 0 3 8h7l3-8m-9 1 2 7m3-7-1 7" stroke="currentColor" stroke-width="1.5" fill="none"/><g class="basket-player" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"><circle cx="11" cy="14" r="3" fill="#fff024"/><path d="M11 18v8m0 0-5 6m5-6 5 6"/><path class="basket-arms" d="m11 20 6-2 1-5m-7 7-3-3"/><path class="basket-raised" d="m11 20 6-5 2-6m-8 11-5-5-1-5"/></g><g class="basket-ball"><circle cx="15" cy="18" r="3" fill="#ff8a28" stroke="#743407"/><path d="M12 18h6m-3-3q2 3 0 6" stroke="#743407" stroke-width=".55" fill="none"/></g></svg>';
 }
 function goalCelebration(m,result){
  const handball=m.sport==='Handball femenino';
