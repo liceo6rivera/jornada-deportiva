@@ -37,6 +37,12 @@ button.primary{background:var(--yellow);border-color:var(--indigo)}
 @keyframes leave-court{0%,49%{transform:none;opacity:1}60%{transform:translate(3px,-4px)}78%,100%{transform:translate(14px,0);opacity:0}}
 @keyframes cheer{0%,48%,78%,100%{transform:none}57%,69%{transform:translateY(-3px)}}
 @media(prefers-reduced-motion:reduce){.mini-play *{animation:none!important}}
+.handball-shot .scorer{animation:handball-cheer 5s infinite}.handball-shot .handball-ball{animation:handball-goal 5s infinite}.handball-shot .throwing{animation:handball-pose 5s step-end infinite}.handball-shot .cheering{animation:handball-raised 5s step-end infinite}
+@keyframes handball-goal{0%,16%{transform:none;opacity:1}30%{transform:translate(15px,-4px);opacity:1}46%,78%{transform:translate(33px,6px);opacity:1}90%{transform:translate(33px,6px);opacity:0}91%,100%{opacity:0}}
+@keyframes handball-cheer{0%,50%,65%,80%,100%{transform:none}57%,72%{transform:translateY(-3px)}}
+@keyframes handball-pose{0%,84%,100%{opacity:1}48%{opacity:0}}
+@keyframes handball-raised{0%,84%,100%{opacity:0}48%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.handball-shot *{animation:none!important}.handball-shot .throwing{display:none}.handball-shot .handball-ball{transform:translate(33px,6px)}}
 .winner{background:var(--yellow);color:var(--navy);border-radius:6px;font-weight:800;padding-inline:4px}.winner small{color:inherit;font-size:.67em}.board-row .tie{color:#8ceaff}.score.tie{background:#d5f5ff}
 .discipline+.discipline{margin-top:24px}
 .discipline h3{margin:0 0 10px;padding:8px 12px;border-left:4px solid var(--cyan);background:#e4f7fd}
@@ -137,7 +143,8 @@ function goalCelebration(m,result){
  const handball=m.sport==='Handball femenino';
  if((!handball&&m.sport!=='Fútbol masculino')||!result||isTie(result))return '';
  const direction=result[1]>result[0]?' reverse':'';
- const ball=handball?'<circle cx="25" cy="7" r="3" fill="#ff8a28" stroke="#743407"/>':'<circle cx="25" cy="24" r="3" fill="#fff" stroke="#161943"/><circle cx="25" cy="24" r="1" fill="#161943"/>';
+ if(handball)return '<svg class="celebration handball-shot'+direction+'" viewBox="0 0 64 32" aria-hidden="true"><path d="M48 27V11h14v16zm4-16v16m5-16v16m-9-11h14m-14 6h14" stroke="currentColor" opacity=".6" fill="none"/><g class="scorer" stroke="#008eae" stroke-width="2" stroke-linecap="round" fill="none"><circle cx="11" cy="10" r="3" fill="#fff024"/><path d="M8 8q-5-3-5 3M11 14v8m0 0-4 6m4-6 4 6"/><path class="throwing" d="m11 16 8-3m-8 3-5 3"/><path class="cheering" d="m11 16 6-8m-6 8-6-8"/></g><g stroke="currentColor" stroke-width="1.7" stroke-linecap="round" fill="none"><circle cx="40" cy="12" r="3"/><path d="M38 10q-5-3-5 3m7 3v7m0-6-4 3m4-3 4 3m-4 3-4 5m4-5 4 5"/></g><circle class="handball-ball" cx="22" cy="13" r="2.7" fill="#ff8a28" stroke="#743407"/></svg>';
+ const ball='<circle cx="25" cy="24" r="3" fill="#fff" stroke="#161943"/><circle cx="25" cy="24" r="1" fill="#161943"/>';
  return '<svg class="celebration'+direction+'" viewBox="0 0 54 30" aria-hidden="true"><g class="celebration-winner" stroke="#007a9c" stroke-width="2.6" stroke-linecap="round" fill="none"><circle cx="15" cy="8" r="3" fill="#fff024"/><path d="M15 13v7m0-6L7 7m8 7 8-7m-8 13-5 6m5-6 5 6"/>'+ball+'</g><g class="standing" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"><circle cx="41" cy="8" r="3"/><path d="M41 13v7m0-6-5 6m5-6 5 6m-5 0-4 6m4-6 4 6"/></g></svg>';
 }
 function extraCelebration(m,result){
