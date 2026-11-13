@@ -25,6 +25,13 @@ button.primary{background:var(--yellow);border-color:var(--indigo)}
 .celebration{display:inline-block;width:2.65em;height:1.45em;margin-inline:.2em;vertical-align:middle;overflow:visible}.celebration.reverse{transform:scaleX(-1)}.celebration-winner{animation:celebrate-goal 4s infinite}.celebration .standing{color:currentColor}
 @keyframes celebrate-goal{0%,45%,60%,100%{transform:none}12%,32%{transform:translateY(-4px)}22%{transform:translateY(-1px)}}
 @media(prefers-reduced-motion:reduce){.celebration-winner{animation:none}}
+.mini-play .ping-ball{animation:ping-rally 5s infinite}.mini-play .late-paddle{animation:paddle-miss 5s infinite}.mini-play .throw-ball{animation:soft-throw 5s infinite}.mini-play .leaving{animation:leave-court 5s infinite}.mini-play .cheer{animation:cheer 5s infinite}
+@keyframes ping-rally{0%,8%{transform:none}18%{transform:translate(22px,9px)}28%{transform:translate(39px,0)}38%{transform:translate(20px,9px)}48%{transform:none}60%{transform:translate(30px,9px)}68%{transform:translate(36px,3px)}76%{transform:translate(42px,9px)}84%,100%{transform:translate(50px,12px);opacity:0}}
+@keyframes paddle-miss{0%,75%,100%{transform:none}85%{transform:translate(-5px,5px)}}
+@keyframes soft-throw{0%,12%{transform:none}30%{transform:translate(14px,-4px)}49%{transform:translate(27px,12px);opacity:1}56%,100%{transform:translate(29px,12px);opacity:0}}
+@keyframes leave-court{0%,49%{transform:none;opacity:1}60%{transform:translate(3px,-4px)}78%,100%{transform:translate(14px,0);opacity:0}}
+@keyframes cheer{0%,48%,78%,100%{transform:none}57%,69%{transform:translateY(-3px)}}
+@media(prefers-reduced-motion:reduce){.mini-play *{animation:none!important}}
 .winner{background:var(--yellow);color:var(--navy);border-radius:6px;font-weight:800;padding-inline:4px}.winner small{color:inherit;font-size:.67em}.board-row .tie{color:#8ceaff}.score.tie{background:#d5f5ff}
 .discipline+.discipline{margin-top:24px}
 .discipline h3{margin:0 0 10px;padding:8px 12px;border-left:4px solid var(--cyan);background:#e4f7fd}
@@ -128,6 +135,15 @@ function goalCelebration(m,result){
  const ball=handball?'<circle cx="25" cy="7" r="3" fill="#ff8a28" stroke="#743407"/>':'<circle cx="25" cy="24" r="3" fill="#fff" stroke="#161943"/><circle cx="25" cy="24" r="1" fill="#161943"/>';
  return '<svg class="celebration'+direction+'" viewBox="0 0 54 30" aria-hidden="true"><g class="celebration-winner" stroke="#007a9c" stroke-width="2.6" stroke-linecap="round" fill="none"><circle cx="15" cy="8" r="3" fill="#fff024"/><path d="M15 13v7m0-6L7 7m8 7 8-7m-8 13-5 6m5-6 5 6"/>'+ball+'</g><g class="standing" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"><circle cx="41" cy="8" r="3"/><path d="M41 13v7m0-6-5 6m5-6 5 6m-5 0-4 6m4-6 4 6"/></g></svg>';
 }
+function extraCelebration(m,result){
+ const ping=m.sport==='Tenis de mesa';
+ if((!ping&&m.sport!=='Balón prisionero')||!result||isTie(result))return '';
+ const direction=result[1]>result[0]?' reverse':'';
+ const scene=ping
+  ?'<path d="M5 21h44m-22 0v-7" stroke="currentColor" fill="none"/><path d="M8 14l-4 5m41-5 4 5" stroke="currentColor" stroke-width="2"/><ellipse cx="9" cy="12" rx="4" ry="6" fill="#ffbe19"/><ellipse class="late-paddle" cx="46" cy="12" rx="4" ry="6" fill="#00bfe9"/><circle class="ping-ball" cx="10" cy="10" r="2" fill="currentColor"/>'
+  :'<path d="M3 27h48" stroke="currentColor" opacity=".55"/><g class="cheer" stroke="#e7a414" stroke-width="2" fill="none"><circle cx="10" cy="9" r="3"/><path d="M10 12v8m0-6L4 8m6 6 6-6m-6 12-4 6m4-6 4 6"/></g><g class="leaving" stroke="currentColor" stroke-width="2" fill="none"><circle cx="41" cy="9" r="3"/><path d="M41 12v8m0-6-5 4m5-4 5 4m-5 2-5 6m5-6 4 6"/></g><circle class="throw-ball" cx="10" cy="13" r="2.5" fill="#ff8a28"/>';
+ return '<svg class="celebration mini-play'+direction+'" viewBox="0 0 54 30" aria-hidden="true">'+scene+'</svg>';
+}
 function outcome(m,result){
  if(!result)return '';
  if(isTie(result))return chess(m)?'Tablas':'Empate';
@@ -148,7 +164,7 @@ function matchCard(m){
   const result=scores[m.id];
   const card=document.createElement('article');
   card.className='card';
-  card.innerHTML='<div class="meta"><strong>'+m.sport+'</strong><time>'+m.time+'</time></div><div class="teams">'+teamLabel(m.teams[0],result,0)+'<span class="score'+(isTie(result)?' tie':'')+'">'+(result?(chess(m)?(isTie(result)?'Tablas':chessAnimation(result)):result.map(Number).join(' – ')+(isTie(result)?' · Empate':'')):'vs.')+basketAnimation(m,result)+goalCelebration(m,result)+'</span>'+teamLabel(m.teams[1],result,1)+'</div><div class="foot"><small>'+m.venue+' · '+m.turn+'</small><button type="button">'+(result?'Editar':'Cargar')+'</button></div>';
+  card.innerHTML='<div class="meta"><strong>'+m.sport+'</strong><time>'+m.time+'</time></div><div class="teams">'+teamLabel(m.teams[0],result,0)+'<span class="score'+(isTie(result)?' tie':'')+'">'+(result?(chess(m)?(isTie(result)?'Tablas':chessAnimation(result)):result.map(Number).join(' – ')+(isTie(result)?' · Empate':'')):'vs.')+basketAnimation(m,result)+goalCelebration(m,result)+extraCelebration(m,result)+'</span>'+teamLabel(m.teams[1],result,1)+'</div><div class="foot"><small>'+m.venue+' · '+m.turn+'</small><button type="button">'+(result?'Editar':'Cargar')+'</button></div>';
   card.querySelector('button').onclick=()=>open(m);
   return card;
 }
@@ -222,7 +238,7 @@ function renderBoard(){
    const row=document.createElement('div');
    row.className='board-row';
    const result=scores[m.id];
-   row.innerHTML='<time>'+m.time+'</time>'+teamLabel(m.teams[0],result,0)+'<strong'+(isTie(result)?' class="tie" title="Empate"':'')+'>'+(result?(chess(m)?(isTie(result)?'Tablas':chessAnimation(result)):result.join('–')):'—')+basketAnimation(m,result)+goalCelebration(m,result)+'</strong>'+teamLabel(m.teams[1],result,1);
+   row.innerHTML='<time>'+m.time+'</time>'+teamLabel(m.teams[0],result,0)+'<strong'+(isTie(result)?' class="tie" title="Empate"':'')+'>'+(result?(chess(m)?(isTie(result)?'Tablas':chessAnimation(result)):result.join('–')):'—')+basketAnimation(m,result)+goalCelebration(m,result)+extraCelebration(m,result)+'</strong>'+teamLabel(m.teams[1],result,1);
    section.append(row);
   }
   return section;
