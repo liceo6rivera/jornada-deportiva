@@ -15,6 +15,10 @@ header p{color:var(--yellow)}header h1{font-size:clamp(1.75rem,7vw,5.5rem)}
 header .crest{width:clamp(56px,14vw,132px);height:auto}
 button.primary{background:var(--yellow);border-color:var(--indigo)}
 .card{border-color:#b8dce8}.score{background:#e4f7fd}small{color:#3a4e6d}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.chess-scene{display:inline-flex;align-items:center;justify-content:center;gap:.32em;isolation:isolate;white-space:nowrap}.chess-scene.reverse{flex-direction:row-reverse;--push:-.38em;--fall:-75deg}.chess-scene{--push:.38em;--fall:75deg}.chess-king{display:inline-block;font-family:"Segoe UI Symbol",sans-serif;line-height:1.15;transform-origin:50% 85%}.chess-victor{color:#765500;animation:king-push 5s infinite}.chess-loser{animation:king-fall 5s infinite}.board .chess-victor{color:var(--yellow)}
+@keyframes king-push{0%,12%,75%,100%{transform:none}25%,65%{transform:translateX(var(--push))}}
+@keyframes king-fall{0%,23%,80%,100%{transform:none}40%,70%{transform:rotate(var(--fall))}}
+@media(prefers-reduced-motion:reduce){.chess-king{animation:none}.chess-loser{transform:rotate(var(--fall))}}
 .winner{background:var(--yellow);color:var(--navy);border-radius:6px;font-weight:800;padding-inline:4px}.winner small{color:inherit;font-size:.67em}.board-row .tie{color:#8ceaff}.score.tie{background:#d5f5ff}
 .discipline+.discipline{margin-top:24px}
 .discipline h3{margin:0 0 10px;padding:8px 12px;border-left:4px solid var(--cyan);background:#e4f7fd}
@@ -98,10 +102,14 @@ function byDiscipline(games){
 }
 function teamLabel(team,result,index){
  const winner=result && result[index]>result[1-index];
- return winner?'<span class="winner">'+team+' <small>✓</small><span hidden> Ganador</span></span>':'<span>'+team+'</span>';
+ return winner?'<span class="winner">'+team+' <small>✓</small><span class="sr-only"> Ganador</span></span>':'<span>'+team+'</span>';
 }
 function isTie(result){return result && result[0]===result[1]}
 function chess(m){return m.sport==='Ajedrez'}
+function chessAnimation(result){
+ const direction=result[1]>result[0]?' reverse':'';
+ return '<span class="chess-scene'+direction+'" aria-hidden="true"><span class="chess-king chess-victor">♚</span><span class="chess-king chess-loser">♚</span></span>';
+}
 function outcome(m,result){
  if(!result)return '';
  if(isTie(result))return chess(m)?'Tablas':'Empate';
@@ -122,7 +130,7 @@ function matchCard(m){
   const result=scores[m.id];
   const card=document.createElement('article');
   card.className='card';
-  card.innerHTML='<div class="meta"><strong>'+m.sport+'</strong><time>'+m.time+'</time></div><div class="teams">'+teamLabel(m.teams[0],result,0)+'<span class="score'+(isTie(result)?' tie':'')+'">'+(result?(chess(m)?outcome(m,result):result.map(Number).join(' – ')+(isTie(result)?' · Empate':'')):'vs.')+'</span>'+teamLabel(m.teams[1],result,1)+'</div><div class="foot"><small>'+m.venue+' · '+m.turn+'</small><button type="button">'+(result?'Editar':'Cargar')+'</button></div>';
+  card.innerHTML='<div class="meta"><strong>'+m.sport+'</strong><time>'+m.time+'</time></div><div class="teams">'+teamLabel(m.teams[0],result,0)+'<span class="score'+(isTie(result)?' tie':'')+'">'+(result?(chess(m)?(isTie(result)?'Tablas':chessAnimation(result)):result.map(Number).join(' – ')+(isTie(result)?' · Empate':'')):'vs.')+'</span>'+teamLabel(m.teams[1],result,1)+'</div><div class="foot"><small>'+m.venue+' · '+m.turn+'</small><button type="button">'+(result?'Editar':'Cargar')+'</button></div>';
   card.querySelector('button').onclick=()=>open(m);
   return card;
 }
@@ -196,7 +204,7 @@ function renderBoard(){
    const row=document.createElement('div');
    row.className='board-row';
    const result=scores[m.id];
-   row.innerHTML='<time>'+m.time+'</time>'+teamLabel(m.teams[0],result,0)+'<strong'+(isTie(result)?' class="tie" title="Empate"':'')+'>'+(result?(chess(m)?(isTie(result)?'Tablas':'Ganó'):result.join('–')):'—')+'</strong>'+teamLabel(m.teams[1],result,1);
+   row.innerHTML='<time>'+m.time+'</time>'+teamLabel(m.teams[0],result,0)+'<strong'+(isTie(result)?' class="tie" title="Empate"':'')+'>'+(result?(chess(m)?(isTie(result)?'Tablas':chessAnimation(result)):result.join('–')):'—')+'</strong>'+teamLabel(m.teams[1],result,1);
    section.append(row);
   }
   return section;
