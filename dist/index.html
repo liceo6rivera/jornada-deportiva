@@ -52,6 +52,18 @@ dialog::backdrop{background:#161943bb}
 .board h3{color:#8ceaff}.board-row strong{color:var(--yellow)}
 .board-brand{display:flex;align-items:center;gap:10px;margin-right:auto}
 .board-brand .crest{width:clamp(28px,6vh,58px);height:auto;border-radius:8px}
+
+.sport-scene{position:relative;display:inline-grid;place-items:center;width:3.5em;height:1.85em;margin-inline:.14em;vertical-align:middle;border:1px solid #8293b0;border-radius:.35em;background:#e5efff;isolation:isolate}
+.board .sport-scene{width:3em;height:1.55em;background:#20275e}
+.sport-scene .celebration,.sport-scene .basket-shot{width:93%;height:94%;margin:0}
+.scene-setting,.scene-spark{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.scene-setting{z-index:-1;opacity:.48;color:#3e72a4}
+.board .scene-setting{color:#91bcf0}
+.scene-spark{color:#da8300;animation:scene-spark 5s infinite}
+.board .scene-spark{color:#fff024}
+.sport-scene.reverse .scene-spark{transform:scaleX(-1)}
+@keyframes scene-spark{0%,50%,83%,100%{opacity:0}59%,69%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.scene-spark{animation:none;opacity:0}}
 body.screen{background:var(--navy)}
 .board-row>span{white-space:nowrap}
 @media(max-width:720px){
@@ -171,6 +183,21 @@ function extraCelebration(m,result){
   :'<path d="M3 27h48" stroke="currentColor" opacity=".55"/><g class="cheer" stroke="#e7a414" stroke-width="2" fill="none"><circle cx="10" cy="9" r="3"/><path d="M10 12v8m0-6L4 8m6 6 6-6m-6 12-4 6m4-6 4 6"/></g><g class="leaving" stroke="currentColor" stroke-width="2" fill="none"><circle cx="41" cy="9" r="3"/><path d="M41 12v8m0-6-5 4m5-4 5 4m-5 2-5 6m5-6 4 6"/></g><circle class="throw-ball" cx="10" cy="13" r="2.5" fill="#ff8a28"/>';
  return '<svg class="celebration mini-play'+direction+'" viewBox="0 0 54 30" aria-hidden="true">'+scene+'</svg>';
 }
+function detailedScene(m,result){
+ if(!result||isTie(result))return '';
+ const scene=chess(m)?chessAnimation(result):basketAnimation(m,result)||goalCelebration(m,result)||extraCelebration(m,result);
+ if(!scene)return '';
+ const settings={
+  'Ajedrez':'M0 16h64M0 23h64M8 16v16m12-16v16m12-16v16m12-16v16m12-16v16',
+  'Básquetbol mixto':'M0 27h64M46 27V21h18M41 27q2-9 10-9',
+  'Fútbol masculino':'M0 27h64M32 19v8m-7 0a7 7 0 0 1 14 0M0 20h9v7m46 0v-7h9',
+  'Handball femenino':'M0 27h64M39 27q0-10 16-10M35 27q0-13 20-13',
+  'Tenis de mesa':'M7 24h50m-42 0v7m34-7v7M8 22h48',
+  'Balón prisionero':'M0 27h64m-32-8v8M19 23v4m26-4v4'
+ };
+ const direction=result[1]>result[0]?' reverse':'';
+ return '<span class="sport-scene'+direction+'" aria-hidden="true"><svg class="scene-setting" viewBox="0 0 64 32"><path d="'+settings[m.sport]+'" fill="none" stroke="currentColor"/></svg>'+scene+'<svg class="scene-spark" viewBox="0 0 64 32"><path d="M52 3v6m-3-3h6m4 4v4m-2-2h4" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></span>';
+}
 function outcome(m,result){
  if(!result)return '';
  if(isTie(result))return chess(m)?'Tablas':'Empate';
@@ -222,7 +249,7 @@ function matchCard(m){
   const result=scores[m.id];
   const card=document.createElement('article');
   card.className='card';
-  card.innerHTML='<div class="meta"><strong>'+m.sport+'</strong><time>'+m.time+'</time></div><div class="teams">'+teamLabel(m.teams[0],result,0)+'<span class="score'+(isTie(result)?' tie':'')+'">'+(result?(chess(m)?(isTie(result)?'Tablas':chessAnimation(result)):result.map(Number).join(' – ')+(isTie(result)?' · Empate':'')):'vs.')+basketAnimation(m,result)+goalCelebration(m,result)+extraCelebration(m,result)+'</span>'+teamLabel(m.teams[1],result,1)+'</div><div class="foot"><small>'+m.venue+' · '+m.turn+'</small><button type="button">'+(result?'Editar':'Cargar')+'</button></div>';
+  card.innerHTML='<div class="meta"><strong>'+m.sport+'</strong><time>'+m.time+'</time></div><div class="teams">'+teamLabel(m.teams[0],result,0)+'<span class="score'+(isTie(result)?' tie':'')+'">'+(result?(chess(m)?(isTie(result)?'Tablas':'✓'):result.map(Number).join(' – ')+(isTie(result)?' · Empate':'')):'vs.')+detailedScene(m,result)+'</span>'+teamLabel(m.teams[1],result,1)+'</div><div class="foot"><small>'+m.venue+' · '+m.turn+'</small><button type="button">'+(result?'Editar':'Cargar')+'</button></div>';
   card.querySelector('button').onclick=()=>open(m);
   return card;
 }
@@ -296,7 +323,7 @@ function renderBoard(){
    const row=document.createElement('div');
    row.className='board-row';
    const result=scores[m.id];
-   row.innerHTML='<time>'+m.time+'</time>'+teamLabel(m.teams[0],result,0)+'<strong'+(isTie(result)?' class="tie" title="Empate"':'')+'>'+(result?(chess(m)?(isTie(result)?'Tablas':chessAnimation(result)):result.join('–')):'—')+basketAnimation(m,result)+goalCelebration(m,result)+extraCelebration(m,result)+'</strong>'+teamLabel(m.teams[1],result,1);
+   row.innerHTML='<time>'+m.time+'</time>'+teamLabel(m.teams[0],result,0)+'<strong'+(isTie(result)?' class="tie" title="Empate"':'')+'>'+(result?(chess(m)?(isTie(result)?'Tablas':'✓'):result.join('–')):'—')+detailedScene(m,result)+'</strong>'+teamLabel(m.teams[1],result,1);
    section.append(row);
   }
   return section;
