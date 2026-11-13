@@ -52,6 +52,20 @@ dialog::backdrop{background:#161943bb}
 .board h3{color:#8ceaff}.board-row strong{color:var(--yellow)}
 .board-brand{display:flex;align-items:center;gap:10px;margin-right:auto}
 .board-brand .crest{width:clamp(28px,6vh,58px);height:auto;border-radius:8px}
+body.screen{background:var(--navy)}
+.board-row>span{white-space:nowrap}
+@media(max-width:720px){
+ .board{height:auto;min-height:100dvh;grid-template-rows:auto auto auto}
+ .board-head{flex-wrap:wrap;justify-content:flex-start}
+ .board-brand{flex:1 0 100%;min-width:0}
+ .board h2{font-size:1.15rem}
+ .board-head button{font-size:.85rem}
+ .board-grid{grid-template-columns:minmax(0,1fr);grid-template-rows:none}
+ .board section{grid-template-rows:none;padding:10px}
+ .board-row{grid-template-columns:3.1em minmax(0,1fr) minmax(0,1.4fr) minmax(0,1fr);min-height:2.6rem;font-size:.9rem;gap:3px}
+ .board-row>strong{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;min-width:0}
+ .board-row>span{justify-self:center}
+}
 </style>
 <header><img class="crest" src="./logo-liceo6.png" alt="Escudo del Liceo N.º 6" width="1254" height="1254"><div><p>LICEO N.º 6 · RIVERA</p><h1>JORNADA DEPORTIVA LICEO 6</h1><div>Carga de resultados para docentes</div></div></header>
 <main><h2>Selecciona el turno</h2>
