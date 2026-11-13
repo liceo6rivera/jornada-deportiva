@@ -4,7 +4,7 @@
 *{box-sizing:border-box}body{margin:0;background:#eef1ed;color:#122b26;font:16px system-ui,sans-serif}header{background:#102c26;color:white;padding:56px max(5vw,calc((100% - 1050px)/2));border-bottom:7px solid #d9fa68}header p{margin:0;color:#d9fa68;font-weight:750;letter-spacing:.09em}h1{font-size:clamp(2.5rem,8vw,5.5rem);letter-spacing:-.065em;line-height:1;margin:.2em 0}main{max-width:1090px;margin:auto;padding:26px 20px 60px}.tools{display:flex;gap:12px;flex-wrap:wrap;align-items:end}label{display:grid;gap:5px;font-weight:650}select,button,input{font:inherit;padding:9px;border:1px solid #9aaea4;border-radius:8px;background:white;color:inherit}button{cursor:pointer;font-weight:700}button.primary{background:#d9fa68;border-color:#122b26}.list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,285px),1fr));gap:12px}.card{background:white;border-radius:14px;padding:16px;border:1px solid #cbd8cf}.meta{display:flex;justify-content:space-between;gap:8px;font-size:.87rem}.teams{display:flex;justify-content:space-between;align-items:center;text-align:center;gap:8px;margin:18px 0;font-size:1.4rem;font-weight:800}.score{background:#edf4e9;border-radius:8px;padding:5px 12px;white-space:nowrap}.foot{display:flex;justify-content:space-between;align-items:center;gap:8px}small{color:#425a51}dialog{border:0;border-radius:16px;width:min(440px,94vw);padding:24px}dialog::backdrop{background:#102c26aa}.inputs{display:flex;gap:12px;margin:16px 0}.inputs label{width:50%}input{width:100%}body:has(dialog[open]){overflow:hidden}
 </style>
 <style>
-.board{height:100dvh;padding:14px;display:grid;grid-template-rows:auto 1fr;gap:10px;background:#102c26;color:white}.board[hidden]{display:none}.board h2{margin:0}.board-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.board-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:10px;min-height:0}.board section{background:#1e4338;border-radius:10px;padding:8px;display:grid;grid-template-rows:auto repeat(8,minmax(0,1fr));min-height:0}.board h3{margin:0;color:#d9fa68;font-size:clamp(11px,2.3vh,24px)}.board-row{display:grid;grid-template-columns:1fr 1fr 1.1fr 1fr;align-items:center;text-align:center;border-bottom:1px solid #ffffff30;font-size:clamp(10px,2.2vh,24px);font-variant-numeric:tabular-nums}.board-row strong{color:#d9fa68}body.screen header,body.screen main{display:none}
+.board{height:100dvh;padding:14px;display:grid;grid-template-rows:auto auto 1fr;gap:10px;background:#102c26;color:white}.board[hidden]{display:none}.board h2{margin:0}.board-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.board-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:10px;min-height:0}.board section{background:#1e4338;border-radius:10px;padding:8px;display:grid;grid-template-rows:auto repeat(8,minmax(0,1fr));min-height:0}.board h3{margin:0;color:#d9fa68;font-size:clamp(11px,2.3vh,24px)}.board-row{display:grid;grid-template-columns:1fr 1fr 1.1fr 1fr;align-items:center;text-align:center;border-bottom:1px solid #ffffff30;font-size:clamp(10px,2.2vh,24px);font-variant-numeric:tabular-nums}.board-row strong{color:#d9fa68}body.screen header,body.screen main{display:none}
 </style>
 <style>
 :root{--indigo:#303582;--navy:#161943;--cyan:#00bfe9;--yellow:#fff024}
@@ -20,7 +20,7 @@ button.primary{background:var(--yellow);border-color:var(--indigo)}
 .discipline h3{margin:0 0 10px;padding:8px 12px;border-left:4px solid var(--cyan);background:#e4f7fd}
 dialog::backdrop{background:#161943bb}
 .board{background:var(--navy)}.board section{background:var(--indigo)}
-.board-head button{color:var(--navy)}
+.board #board-leaders{color:var(--yellow);font-weight:700;font-size:clamp(12px,2vh,20px)}#outcome-row[hidden],.inputs[hidden]{display:none}.board-head button{color:var(--navy)}
 .board h3{color:#8ceaff}.board-row strong{color:var(--yellow)}
 .board-brand{display:flex;align-items:center;gap:10px;margin-right:auto}
 .board-brand .crest{width:clamp(28px,6vh,58px);height:auto;border-radius:8px}
@@ -36,9 +36,9 @@ dialog::backdrop{background:#161943bb}
 <label>Disciplina<select id="sport"><option value="">Todas</option></select></label>
 <label>Estado<select id="state"><option value="">Todos</option><option>Pendiente</option><option>Finalizado</option></select></label>
 <button id="export">Exportar CSV</button><button id="screen">Modo pantalla</button></div>
-<p id="count" role="status"></p><p><small id="sync"></small></p><div id="list"></div></main>
-<div id="board" class="board" hidden><div class="board-head"><div class="board-brand"><img class="crest" src="./logo-liceo6.png" alt="Escudo del Liceo N.º 6" width="1254" height="1254"><h2 id="board-title"></h2></div><span id="board-sync"></span><button id="board-turn"></button><button id="exit">Salir</button></div><div id="board-grid" class="board-grid"></div></div>
-<dialog id="editor"><form id="form"><h2 id="match"></h2><p id="details"></p><div class="inputs"><label><span id="teamA"></span><input id="a" type="number" inputmode="decimal" min="0" max="999" step="any" required></label><label><span id="teamB"></span><input id="b" type="number" inputmode="decimal" min="0" max="999" step="any" required></label></div><button class="primary">Guardar resultado</button> <button type="button" id="cancel">Cancelar</button> <button type="button" id="clear" hidden>Quitar resultado</button><p id="error" role="alert"></p></form></dialog>
+<p id="count" role="status"></p><p><small id="sync"></small></p><p id="leaders"></p><div id="list"></div></main>
+<div id="board" class="board" hidden><div class="board-head"><div class="board-brand"><img class="crest" src="./logo-liceo6.png" alt="Escudo del Liceo N.º 6" width="1254" height="1254"><h2 id="board-title"></h2></div><span id="board-sync"></span><button id="board-turn"></button><button id="exit">Salir</button></div><div id="board-leaders"></div><div id="board-grid" class="board-grid"></div></div>
+<dialog id="editor"><form id="form"><h2 id="match"></h2><p id="details"></p><label id="outcome-row" hidden>Resultado<select id="outcome"></select></label><p id="units"></p><div class="inputs" id="numeric"><label><span id="teamA"></span><input id="a" type="number" inputmode="decimal" min="0" max="999" step="any" required></label><label><span id="teamB"></span><input id="b" type="number" inputmode="decimal" min="0" max="999" step="any" required></label></div><button class="primary">Guardar resultado</button> <button type="button" id="cancel">Cancelar</button> <button type="button" id="clear" hidden>Quitar resultado</button><p id="error" role="alert"></p></form></dialog>
 <script type="module">
 const sports=['Balón prisionero','Tenis de mesa','Ajedrez','Fútbol masculino','Handball femenino','Básquetbol mixto'];
 const schedules=[
@@ -80,6 +80,7 @@ function render(){
  el('count').textContent=visible.length+' de '+itinerary.length+' encuentros · '+itinerary.filter(m=>scores[m.id]).length+' finalizados';
  el('list').replaceChildren();
  renderBoard();
+ el('leaders').textContent=leaderText();
  for(const [sport, games] of byDiscipline(visible)){
   const section=document.createElement('section');
   section.className='discipline';
@@ -100,11 +101,28 @@ function teamLabel(team,result,index){
  return winner?'<span class="winner">'+team+' <small>✓</small><span hidden> Ganador</span></span>':'<span>'+team+'</span>';
 }
 function isTie(result){return result && result[0]===result[1]}
+function chess(m){return m.sport==='Ajedrez'}
+function outcome(m,result){
+ if(!result)return '';
+ if(isTie(result))return chess(m)?'Tablas':'Empate';
+ return 'Ganó '+m.teams[result[0]>result[1]?0:1];
+}
+function leaderText(){
+ const wins=new Map();
+ for(const m of matches.filter(m=>m.turn===turn)){
+  const r=scores[m.id];
+  if(!r||isTie(r))continue;
+  const team=m.teams[r[0]>r[1]?0:1];
+  wins.set(team,(wins.get(team)||0)+1);
+ }
+ const top=Math.max(0,...wins.values());
+ return top?'Lideran '+[...wins].filter(([,n])=>n===top).map(([team])=>team).join(', ')+' · '+top+(top===1?' victoria':' victorias'):'Sin victorias registradas en este turno';
+}
 function matchCard(m){
   const result=scores[m.id];
   const card=document.createElement('article');
   card.className='card';
-  card.innerHTML='<div class="meta"><strong>'+m.sport+'</strong><time>'+m.time+'</time></div><div class="teams">'+teamLabel(m.teams[0],result,0)+'<span class="score'+(isTie(result)?' tie':'')+'">'+(result?result.map(Number).join(' – ')+(isTie(result)?' · Empate':''):'vs.')+'</span>'+teamLabel(m.teams[1],result,1)+'</div><div class="foot"><small>'+m.venue+' · '+m.turn+'</small><button type="button">'+(result?'Editar':'Cargar')+'</button></div>';
+  card.innerHTML='<div class="meta"><strong>'+m.sport+'</strong><time>'+m.time+'</time></div><div class="teams">'+teamLabel(m.teams[0],result,0)+'<span class="score'+(isTie(result)?' tie':'')+'">'+(result?(chess(m)?outcome(m,result):result.map(Number).join(' – ')+(isTie(result)?' · Empate':'')):'vs.')+'</span>'+teamLabel(m.teams[1],result,1)+'</div><div class="foot"><small>'+m.venue+' · '+m.turn+'</small><button type="button">'+(result?'Editar':'Cargar')+'</button></div>';
   card.querySelector('button').onclick=()=>open(m);
   return card;
 }
@@ -115,6 +133,14 @@ function open(m){
  el('details').textContent=[m.sport,m.turn,m.time].join(' · ');
  el('teamA').textContent=m.teams[0];
  el('teamB').textContent=m.teams[1];
+ const categorical=chess(m);
+ el('outcome-row').hidden=!categorical;
+ el('outcome').required=categorical;
+ el('numeric').hidden=categorical;
+ for(const id of ['a','b'])el(id).disabled=categorical;
+ el('units').textContent=({ 'Tenis de mesa':'Sets ganados','Fútbol masculino':'Goles','Handball femenino':'Goles','Básquetbol mixto':'Puntos','Balón prisionero':'Marcador del partido' })[m.sport]||'';
+ el('outcome').replaceChildren(new Option('Selecciona un resultado',''),new Option('Ganó '+m.teams[0],'a'),new Option('Ganó '+m.teams[1],'b'),new Option('Tablas','tie'));
+ el('outcome').value=result?(isTie(result)?'tie':result[0]>result[1]?'a':'b'):'';
  el('a').value=result?.[0]??'';
  el('b').value=result?.[1]??'';
  el('clear').hidden=!result;
@@ -142,7 +168,7 @@ async function save(result){
  try{localStorage.setItem(key,JSON.stringify(scores))}catch{load();el('error').textContent='El navegador no pudo guardar el resultado.';return}
  el('editor').close();render();
 }
-el('form').onsubmit=e=>{e.preventDefault();save([el('a').valueAsNumber,el('b').valueAsNumber])};
+el('form').onsubmit=e=>{e.preventDefault();save(chess(selected)?({a:[1,0],b:[0,1],tie:[0,0]})[el('outcome').value]:[el('a').valueAsNumber,el('b').valueAsNumber])};
 el('cancel').onclick=()=>el('editor').close();
 el('clear').onclick=()=>save(null);
 const turnButtons=document.querySelectorAll('[data-turn]');
@@ -159,6 +185,7 @@ for(const id of ['sport','state'])el(id).onchange=render;
 window.addEventListener('storage',e=>{if(!shared&&e.key===key){load();render()}});
 function renderBoard(){
  el('board-title').textContent='JORNADA DEPORTIVA LICEO 6 · '+turn;
+ el('board-leaders').textContent=leaderText();
  el('board-turn').textContent=turn==='Matutino'?'Vespertino':'Matutino';
  el('board-grid').replaceChildren(...byDiscipline(matches.filter(m=>m.turn===turn)).map(([sport,games])=>{
   const section=document.createElement('section');
@@ -169,7 +196,7 @@ function renderBoard(){
    const row=document.createElement('div');
    row.className='board-row';
    const result=scores[m.id];
-   row.innerHTML='<time>'+m.time+'</time>'+teamLabel(m.teams[0],result,0)+'<strong'+(isTie(result)?' class="tie" title="Empate"':'')+'>'+(result?.join('–')??'—')+'</strong>'+teamLabel(m.teams[1],result,1);
+   row.innerHTML='<time>'+m.time+'</time>'+teamLabel(m.teams[0],result,0)+'<strong'+(isTie(result)?' class="tie" title="Empate"':'')+'>'+(result?(chess(m)?(isTie(result)?'Tablas':'Ganó'):result.join('–')):'—')+'</strong>'+teamLabel(m.teams[1],result,1);
    section.append(row);
   }
   return section;
@@ -183,7 +210,7 @@ el('screen').onclick=()=>{setScreen(true);document.documentElement.requestFullsc
 el('exit').onclick=()=>{setScreen(false);if(document.fullscreenElement)document.exitFullscreen()};
 el('board-turn').onclick=()=>[...turnButtons].find(b=>b.dataset.turn!==turn).click();
 el('export').onclick=()=>{
- const rows=[['Turno','Sede','Disciplina','Hora','Grupo A','Grupo B','Marcador A','Marcador B'],...matches.map(m=>[m.turn,m.venue,m.sport,m.time,...m.teams,...(scores[m.id]||['',''])])];
+ const rows=[['Turno','Sede','Disciplina','Hora','Grupo A','Grupo B','Marcador A','Marcador B','Resultado'],...matches.map(m=>[m.turn,m.venue,m.sport,m.time,...m.teams,...(chess(m)?['','']:(scores[m.id]||['',''])),outcome(m,scores[m.id])])];
  const url=URL.createObjectURL(new Blob(['\ufeff',rows.map(r=>r.join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}));
  const link=document.createElement('a');link.href=url;link.download='jornada-deportiva.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
