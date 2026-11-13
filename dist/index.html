@@ -43,7 +43,7 @@ button.primary{background:var(--yellow);border-color:var(--indigo)}
 @keyframes handball-pose{0%,84%,100%{opacity:1}48%{opacity:0}}
 @keyframes handball-raised{0%,84%,100%{opacity:0}48%{opacity:1}}
 @media(prefers-reduced-motion:reduce){.handball-shot *{animation:none!important}.handball-shot .throwing{display:none}.handball-shot .handball-ball{transform:translate(33px,6px)}}
-.winner{background:var(--yellow);color:var(--navy);border-radius:6px;font-weight:800;padding-inline:4px}.winner small{color:inherit;font-size:.67em}.board-row .tie{color:#8ceaff}.score.tie{background:#d5f5ff}
+#standings{width:min(680px,96vw);max-height:90dvh;color:var(--navy)}#standings table{width:100%;border-collapse:collapse;text-align:center}#standings th,#standings td{padding:6px 2px;border-bottom:1px solid #b8dce8}#standings th{background:#e4f7fd}#standings form{text-align:right}.winner{background:var(--yellow);color:var(--navy);border-radius:6px;font-weight:800;padding-inline:4px}.winner small{color:inherit;font-size:.67em}.board-row .tie{color:#8ceaff}.score.tie{background:#d5f5ff}
 .discipline+.discipline{margin-top:24px}
 .discipline h3{margin:0 0 10px;padding:8px 12px;border-left:4px solid var(--cyan);background:#e4f7fd}
 dialog::backdrop{background:#161943bb}
@@ -63,10 +63,10 @@ dialog::backdrop{background:#161943bb}
 <div class="tools">
 <label>Disciplina<select id="sport"><option value="">Todas</option></select></label>
 <label>Estado<select id="state"><option value="">Todos</option><option>Pendiente</option><option>Finalizado</option></select></label>
-<button id="export">Exportar CSV</button><button id="screen">Modo pantalla</button></div>
+<button type="button" data-standings>Ver tabla de posiciones</button><button id="export">Exportar CSV</button><button id="screen">Modo pantalla</button></div>
 <p id="count" role="status"></p><p><small id="sync"></small></p><p id="leaders"></p><div id="list"></div></main>
-<div id="board" class="board" hidden><div class="board-head"><div class="board-brand"><img class="crest" src="./logo-liceo6.png" alt="Escudo del Liceo N.º 6" width="1254" height="1254"><h2 id="board-title"></h2></div><span id="board-sync"></span><button id="board-turn"></button><button id="exit">Salir</button></div><div id="board-leaders"></div><div id="board-grid" class="board-grid"></div></div>
-<dialog id="editor"><form id="form"><h2 id="match"></h2><p id="details"></p><label id="outcome-row" hidden>Resultado<select id="outcome"></select></label><p id="units"></p><div class="inputs" id="numeric"><label><span id="teamA"></span><input id="a" type="number" inputmode="decimal" min="0" max="999" step="any" required></label><label><span id="teamB"></span><input id="b" type="number" inputmode="decimal" min="0" max="999" step="any" required></label></div><button class="primary">Guardar resultado</button> <button type="button" id="cancel">Cancelar</button> <button type="button" id="clear" hidden>Quitar resultado</button><p id="error" role="alert"></p></form></dialog>
+<div id="board" class="board" hidden><div class="board-head"><div class="board-brand"><img class="crest" src="./logo-liceo6.png" alt="Escudo del Liceo N.º 6" width="1254" height="1254"><h2 id="board-title"></h2></div><span id="board-sync"></span><button id="board-turn"></button><button type="button" data-standings>Ver tabla de posiciones</button><button id="exit">Salir</button></div><div id="board-leaders"></div><div id="board-grid" class="board-grid"></div></div>
+<dialog id="standings"><form method="dialog"><button>Cerrar</button></form><h2 id="standings-title"></h2><p>Victoria 3 · Empate 1 · Derrota 0</p><table><thead><tr><th>Pos.</th><th>Grupo</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>Pts.</th></tr></thead><tbody id="standings-rows"></tbody></table><p><small>PJ jugados · PG ganados · PE empatados · PP perdidos</small></p></dialog><dialog id="editor"><form id="form"><h2 id="match"></h2><p id="details"></p><label id="outcome-row" hidden>Resultado<select id="outcome"></select></label><p id="units"></p><div class="inputs" id="numeric"><label><span id="teamA"></span><input id="a" type="number" inputmode="decimal" min="0" max="999" step="any" required></label><label><span id="teamB"></span><input id="b" type="number" inputmode="decimal" min="0" max="999" step="any" required></label></div><button class="primary">Guardar resultado</button> <button type="button" id="cancel">Cancelar</button> <button type="button" id="clear" hidden>Quitar resultado</button><p id="error" role="alert"></p></form></dialog>
 <script type="module">
 const sports=['Balón prisionero','Tenis de mesa','Ajedrez','Fútbol masculino','Handball femenino','Básquetbol mixto'];
 const schedules=[
@@ -108,6 +108,7 @@ function render(){
  el('count').textContent=visible.length+' de '+itinerary.length+' encuentros · '+itinerary.filter(m=>scores[m.id]).length+' finalizados';
  el('list').replaceChildren();
  renderBoard();
+ if(el("standings").open)renderStandings();
  el('leaders').textContent=leaderText();
  for(const [sport, games] of byDiscipline(visible)){
   const section=document.createElement('section');
@@ -161,17 +162,44 @@ function outcome(m,result){
  if(isTie(result))return chess(m)?'Tablas':'Empate';
  return 'Ganó '+m.teams[result[0]>result[1]?0:1];
 }
-function leaderText(){
- const wins=new Map();
+function standings(){
+ const groups=new Map();
  for(const m of matches.filter(m=>m.turn===turn)){
-  const r=scores[m.id];
-  if(!r||isTie(r))continue;
-  const team=m.teams[r[0]>r[1]?0:1];
-  wins.set(team,(wins.get(team)||0)+1);
+  for(const [index,team] of m.teams.entries()){
+   if(!groups.has(team))groups.set(team,{team,played:0,wins:0,ties:0,losses:0,points:0});
+   const row=groups.get(team);
+   const result=scores[m.id];
+   if(!result)continue;
+   row.played++;
+   if(isTie(result)){row.ties++;row.points++}
+   else if(result[index]>result[1-index]){row.wins++;row.points+=3}
+   else row.losses++;
+  }
  }
- const top=Math.max(0,...wins.values());
- return top?'Lideran '+[...wins].filter(([,n])=>n===top).map(([team])=>team).join(', ')+' · '+top+(top===1?' victoria':' victorias'):'Sin victorias registradas en este turno';
+ return [...groups.values()].sort((a,b)=>b.points-a.points||b.wins-a.wins||a.team.localeCompare(b.team,'es',{numeric:true}));
 }
+function renderStandings(){
+ el('standings-title').textContent='Tabla de posiciones · '+turn;
+ let rank=0, previous;
+ el('standings-rows').replaceChildren(...standings().map((row,index)=>{
+  if(!previous||previous.points!==row.points||previous.wins!==row.wins)rank=index+1;
+  previous=row;
+  const tr=document.createElement('tr');
+  for(const value of [rank,row.team,row.played,row.wins,row.ties,row.losses,row.points])tr.insertCell().textContent=value;
+  return tr;
+ }));
+}
+function leaderText(){
+ const rows=standings();
+ const top=rows[0]?.points;
+ if(!top)return 'Sin puntos registrados en este turno';
+ const leaders=rows.filter(row=>row.points===top&&row.wins===rows[0].wins);
+ return 'Primer puesto · '+leaders.map(row=>row.team).join(', ')+' · '+top+(top===1?' punto':' puntos');
+}
+for(const button of document.querySelectorAll('[data-standings]'))button.onclick=()=>{
+ renderStandings();
+ el('standings').showModal();
+};
 function matchCard(m){
   const result=scores[m.id];
   const card=document.createElement('article');
