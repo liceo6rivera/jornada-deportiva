@@ -91,7 +91,7 @@ body.screen{background:var(--navy)}
 <label>Estado<select id="state"><option value="">Todos</option><option>Pendiente</option><option>Finalizado</option></select></label>
 <button type="button" data-standings>Ver tabla de posiciones</button><button id="export">Exportar CSV</button><button id="screen">Modo pantalla</button></div>
 <p id="count" role="status"></p><p><small id="sync"></small></p><p id="leaders"></p><div id="list"></div></main>
-<div id="board" class="board" hidden><div class="board-head"><div class="board-brand"><img class="crest" src="./logo-liceo6.png" alt="Escudo del Liceo N.º 6" width="1254" height="1254"><h2 id="board-title"></h2></div><span id="board-sync"></span><button id="board-turn"></button><button type="button" data-standings>Ver tabla de posiciones</button><button id="exit">Salir</button></div><div id="board-leaders"></div><div id="board-grid" class="board-grid"></div></div>
+<div id="board" class="board" hidden><div class="board-head"><div class="board-brand"><img class="crest" src="./logo-liceo6.png" alt="Escudo del Liceo N.º 6" width="1254" height="1254"><h2 id="board-title"></h2></div><span id="board-sync"></span><button id="board-turn"></button><button type="button" data-standings>Ver tabla de posiciones</button><button type="button" id="fullscreen">Pantalla completa</button><button id="exit">Salir</button></div><div id="board-leaders"></div><div id="board-grid" class="board-grid"></div></div>
 <dialog id="standings"><form method="dialog"><button>Cerrar</button></form><h2 id="standings-title"></h2><p>Victoria 3 · Empate 1 · Derrota 0</p><p><small>Para cada grupo cuenta solo su primer partido programado por disciplina en este turno.</small></p><table><thead><tr><th>Pos.</th><th>Grupo</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>Pts.</th></tr></thead><tbody id="standings-rows"></tbody></table><p><small>PJ jugados · PG ganados · PE empatados · PP perdidos</small></p></dialog><dialog id="editor"><form id="form"><h2 id="match"></h2><p id="details"></p><label id="outcome-row" hidden>Resultado<select id="outcome"></select></label><p id="units"></p><div class="inputs" id="numeric"><label><span id="teamA"></span><input id="a" type="number" inputmode="decimal" min="0" max="999" step="any" required></label><label><span id="teamB"></span><input id="b" type="number" inputmode="decimal" min="0" max="999" step="any" required></label></div><button class="primary">Guardar resultado</button> <button type="button" id="cancel">Cancelar</button> <button type="button" id="clear" hidden>Quitar resultado</button><p id="error" role="alert"></p></form></dialog>
 <script type="module">
 const sports=['Balón prisionero','Tenis de mesa','Ajedrez','Fútbol masculino','Handball femenino','Básquetbol mixto'];
@@ -334,6 +334,16 @@ function setScreen(active){
  el('board').hidden=!active;
 }
 el('screen').onclick=()=>{setScreen(true);document.documentElement.requestFullscreen?.().catch(()=>{})};
+el('fullscreen').onclick=async()=>{
+ try{
+  if(document.fullscreenElement)await document.exitFullscreen();
+  else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();
+  else alert('Este navegador no permite activar la pantalla completa desde el botón. En una computadora puedes usar F11.');
+ }catch{alert('No se pudo activar la pantalla completa. En una computadora puedes usar F11.')}
+};
+document.addEventListener('fullscreenchange',()=>{
+ el('fullscreen').textContent=document.fullscreenElement?'Salir de pantalla completa':'Pantalla completa';
+});
 el('exit').onclick=()=>{setScreen(false);if(document.fullscreenElement)document.exitFullscreen()};
 el('board-turn').onclick=()=>[...turnButtons].find(b=>b.dataset.turn!==turn).click();
 el('export').onclick=()=>{
