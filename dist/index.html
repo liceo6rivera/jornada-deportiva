@@ -106,6 +106,7 @@ const matches=schedules.flatMap(([turn,venue,disciplines,times,pairs])=>discipli
 const el=id=>document.getElementById(id);
 const key='jornada-liceo6-resultados-v1';
 const shared=location.protocol!=='file:';
+const readOnly=new URLSearchParams(location.search).has('pantalla');
 let cloud, db;
 async function connect(){
  const [app, f, config]=await Promise.all([
@@ -255,6 +256,7 @@ function matchCard(m){
   return card;
 }
 function open(m){
+ if(readOnly)return;
  selected=m;
  const result=scores[m.id];
  el('match').textContent=m.teams.join(' vs. ');
@@ -276,6 +278,7 @@ function open(m){
  el('editor').showModal();
 }
 async function save(result){
+ if(readOnly)return;
  if(shared){
   const matchId=selected.id;
   const submit=el('form').querySelector('.primary');
@@ -331,6 +334,7 @@ function renderBoard(){
  }));
 }
 function setScreen(active){
+ if(readOnly)active=true;
  document.body.classList.toggle('screen',active);
  el('board').hidden=!active;
 }
@@ -353,7 +357,8 @@ el('export').onclick=()=>{
  const link=document.createElement('a');link.href=url;link.download='jornada-deportiva.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
 render();
-setScreen(new URLSearchParams(location.search).has('pantalla'));
+if(readOnly){el('exit').remove();el('editor').remove();document.querySelector('main').hidden=true;}
+setScreen(readOnly);
 if(shared){
  status('Conectando…');
  connect().catch(()=>status('Sin conexión con Firebase'));
