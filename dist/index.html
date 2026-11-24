@@ -133,7 +133,9 @@ async function connect(){
  },()=>status('Sin conexión con Firebase'));
 }
 function status(message){el('sync').textContent=message;el('board-sync').textContent=message;}
-let scores={}, selected, turn='Matutino';
+const hour=Number(new Intl.DateTimeFormat('en-GB',{timeZone:'America/Montevideo',hour:'2-digit',hourCycle:'h23'}).format(new Date()));
+let scores={}, selected, turn=hour>=13?'Vespertino':'Matutino';
+const expandedResults=new Set();
 function load(){try{scores=JSON.parse(localStorage.getItem(key))||{}}catch{scores={}}}
 if(!shared)load();
 sports.forEach(name=>el('sport').add(new Option(name,name)));
@@ -245,8 +247,22 @@ function renderStandings(){
   for(const value of [rank,row.team,row.played,row.wins,row.ties,row.losses,row.points])tr.insertCell().textContent=value;
   const detail=tr.insertCell();
   const disclosure=document.createElement('details');
+  const detailKey=turn+'|'+row.team;
+  disclosure.open=expandedResults.has(detailKey);
+  const toggle=document.createElement('button');
+  toggle.type='button';
+  toggle.textContent=disclosure.open?'Ocultar partidos':'Ver partidos';
+  toggle.setAttribute('aria-expanded',String(disclosure.open));
+  toggle.onclick=()=>{
+   disclosure.open=!disclosure.open;
+   if(disclosure.open)expandedResults.add(detailKey);
+   else expandedResults.delete(detailKey);
+   toggle.textContent=disclosure.open?'Ocultar partidos':'Ver partidos';
+   toggle.setAttribute('aria-expanded',String(disclosure.open));
+  };
   const summary=document.createElement('summary');
-  summary.textContent='Ver partidos';
+  summary.textContent='Partidos';
+  summary.hidden=true;
   disclosure.append(summary);
   const seen=new Set();
   for(const match of matches.filter(m=>m.turn===turn&&m.teams.includes(row.team))){
@@ -259,7 +275,7 @@ function renderStandings(){
    line.textContent=match.sport+' · '+match.time+' · vs. '+match.teams[1-index]+' · '+(result?(categoricalResult(match)?outcome(match,result):result.join('–')+' · '+outcome(match,result)):'Pendiente')+' · '+(counted?(result?points+' pts.':'Por jugar'):'Fixture adicional · sin puntos para este grupo');
    disclosure.append(line);
   }
-  detail.append(disclosure);
+  detail.append(toggle,disclosure);
   return tr;
  }));
 }
@@ -330,6 +346,11 @@ el('form').onsubmit=e=>{e.preventDefault();save(categoricalResult(selected)?({a:
 el('cancel').onclick=()=>el('editor').close();
 el('clear').onclick=()=>save(null);
 const turnButtons=document.querySelectorAll('[data-turn]');
+for(const button of turnButtons){
+ const active=button.dataset.turn===turn;
+ button.classList.toggle('primary',active);
+ button.setAttribute('aria-pressed',String(active));
+}
 for(const button of turnButtons)button.onclick=()=>{
  turn=button.dataset.turn;
  for(const option of turnButtons){
